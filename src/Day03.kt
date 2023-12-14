@@ -4,17 +4,15 @@ data class Day03Number(val value: Int, val begin: Int, val end: Int, val y: Int)
 data class Day03Symbol(val symbol: Char, val x: Int, val y: Int)
 
 fun main() {
-    fun part1(input: List<String>): Int {
-        var ret = 0
-
-        var linePosition = 0
+    fun parseNumbersAndSymbols(input: List<String>): Pair<MutableSet<Day03Number>, MutableSet<Day03Symbol>> {
         val numberSet = mutableSetOf<Day03Number>()
         val symbolSet = mutableSetOf<Day03Symbol>()
 
-        for (line in input) {
+        for ((linePosition, line) in input.withIndex()) {
+            // https://www.reddit.com/r/adventofcode/comments/189m7uu/comment/kbsbybl/?utm_source=share&utm_medium=web2x&context=3
             val newLine = line + '.'
             println(line)
-            println(newLine)
+//            println(newLine)
 
             var digit = ""
             var begin = 0
@@ -40,7 +38,7 @@ fun main() {
                     } else {
                         if (digitFlag) {
                             val newNumber = Day03Number(digit.toInt(), begin, begin + digit.length - 1, linePosition)
-                            newNumber.println()
+//                            newNumber.println()
                             numberSet.add(newNumber)
                         }
 
@@ -54,13 +52,20 @@ fun main() {
                         digitFlag = false
                         digit = ""
                     }
-
 //                    println("$begin, $digit, $digitFlag")
                 }
             }
-
-            linePosition++
         }
+
+        // https://www.baeldung.com/kotlin/returning-multiple-values
+        // https://stackoverflow.com/questions/47307782/how-to-return-multiple-values-from-a-function-in-kotlin-like-we-do-in-swift
+        return Pair(numberSet, symbolSet)
+    }
+
+    fun part1(input: List<String>): Int {
+        var ret = 0
+
+        val (numberSet, symbolSet) = parseNumbersAndSymbols(input)
         numberSet.println()
         symbolSet.println()
 
@@ -73,19 +78,16 @@ fun main() {
 
                 if ((sy >= y - 1 && sy <= y + 1) && (sx >= begin - 1 && sx <= end + 1)) {
 //                if (abs(y - sy) <= 1 && (abs(begin - sx) <= 1 || abs(end - sx) <= 1)) {
-                    if (y > 1) println(input[y-1])
-                    println(input[y])
-                    if (y < input.lastIndex) println(input[y+1])
-                    println("$number adjacent with $symbol")
+//                    if (y > 1) println(input[y-1])
+//                    println(input[y])
+//                    if (y < input.lastIndex) println(input[y+1])
+//                    println("$number adjacent with $symbol")
                     ret += value
                     break
                 }
             }
         }
         println(ret)
-
-//        val n1 = Day03Number(453, 0, 1, 0)
-//        println(n1.isAdjacentSymbol)
 
         return ret
     }
@@ -107,6 +109,5 @@ fun main() {
 
     val input = readInput("Day03")
     part1(input).println()
-    // 537732
 //    part2(input).println()
 }
