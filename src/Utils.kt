@@ -19,3 +19,11 @@ fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteA
  * The cleaner shorthand for printing output.
  */
 fun Any?.println() = println(this)
+
+fun splitLineIDAndContent(line: String): Pair<Int, String> {
+    val splitList = line.split(": ")
+
+    val lineContent = splitList[1]
+    val lineID = splitList[0].split(" ")[1]
+    return Pair(lineID.toInt(), lineContent)
+}

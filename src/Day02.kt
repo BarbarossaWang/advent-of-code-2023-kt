@@ -1,10 +1,4 @@
 fun main() {
-    fun getGameID(line: String): Int {
-        val splitList = line.split(":")
-        val gameID = splitList[0].removePrefix("Game ").trim()
-        return gameID.toInt()
-    }
-
     fun isGamePossible(line: String): Boolean {
         val cubeNumbersLimit = mapOf("red" to 12, "green" to 13, "blue" to 14)
         var isPossible = true
@@ -92,7 +86,7 @@ fun main() {
         var ret = 0
         for (line in input) {
             println(line)
-            val gameID = getGameID(line)
+            val (gameID, _) = splitLineIDAndContent(line)
 //            println(gameID)
             if(isGamePossible(line)) ret += gameID
         }
@@ -104,7 +98,7 @@ fun main() {
         var ret = 0
         for (line in input) {
             println(line)
-            val gameID = getGameID(line)
+//            val gameID = getGameID(line)
             val fewestCubeNumbers = findFewestCubeNumbers(line)
             fewestCubeNumbers.println()
             val power = fewestCubeNumbers.values.reduce { acc, i -> acc * i }
@@ -118,7 +112,7 @@ fun main() {
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day02_test")
 //    part1(testInput)
-//    check(part1(testInput) == 8)
+    check(part1(testInput) == 8)
     check(part2(testInput) == 2286)
 
     val input = readInput("Day02")
