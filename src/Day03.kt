@@ -1,4 +1,6 @@
-import kotlin.math.abs
+/*
+* https://adventofcode.com/2023/day/3
+* */
 
 data class Day03Number(val value: Int, val begin: Int, val end: Int, val y: Int)
 data class Day03Symbol(val symbol: Char, val x: Int, val y: Int)
@@ -62,6 +64,10 @@ fun main() {
         return Pair(numberSet, symbolSet)
     }
 
+    fun compareNumberAndSymbol(number: Day03Number, symbol: Day03Symbol): Boolean {
+        return (symbol.y >= number.y - 1 && symbol.y <= number.y + 1) && (symbol.x >= number.begin - 1 && symbol.x <= number.end + 1)
+    }
+
     fun part1(input: List<String>): Int {
         var ret = 0
 
@@ -71,18 +77,14 @@ fun main() {
 
         // Find adjacent numbers from numberSet and symbolSet
         for (number in numberSet) {
-            val (value, begin, end, y) = number
-
             for (symbol in symbolSet) {
-                val (sv, sx, sy) = symbol
-
-                if ((sy >= y - 1 && sy <= y + 1) && (sx >= begin - 1 && sx <= end + 1)) {
+                if (compareNumberAndSymbol(number, symbol)) {
 //                if (abs(y - sy) <= 1 && (abs(begin - sx) <= 1 || abs(end - sx) <= 1)) {
 //                    if (y > 1) println(input[y-1])
 //                    println(input[y])
 //                    if (y < input.lastIndex) println(input[y+1])
 //                    println("$number adjacent with $symbol")
-                    ret += value
+                    ret += number.value
                     break
                 }
             }
@@ -94,9 +96,21 @@ fun main() {
 
     fun part2(input: List<String>): Int {
         var ret = 0
-        for (line in input) {
-            println(line)
+        val (numberSet, symbolSet) = parseNumbersAndSymbols(input)
+        numberSet.println()
+        symbolSet.println()
+
+        val asteriskSymbolSet = symbolSet.filter { symbol -> symbol.symbol == '*' }
+        for (asteriskSymbol in asteriskSymbolSet) {
+            val gearNumberSet =  numberSet.filter { number -> compareNumberAndSymbol(number, asteriskSymbol) }
+            gearNumberSet.println()
+
+            if (gearNumberSet.size == 2) {
+                val gearRatio = gearNumberSet.first().value * gearNumberSet.last().value
+                ret += gearRatio
+            }
         }
+
         println(ret)
         return ret
     }
@@ -104,10 +118,11 @@ fun main() {
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day03_test")
 //    part1(testInput)
-//    check(part1(testInput) == 4361)
-//    check(part2(testInput) == 2286)
+    check(part1(testInput) == 4361)
+//    part2(testInput)
+    check(part2(testInput) == 467835)
 
     val input = readInput("Day03")
-    part1(input).println()
-//    part2(input).println()
+//    part1(input).println()
+    part2(input).println()
 }
