@@ -24,6 +24,6 @@ fun splitLineIDAndContent(line: String): Pair<Int, String> {
     val splitList = line.split(": ")
 
     val lineContent = splitList[1]
-    val lineID = splitList[0].split(" ")[1]
+    val lineID = splitList[0].split(" ").last()
     return Pair(lineID.toInt(), lineContent)
 }
