@@ -1,3 +1,6 @@
+import kotlin.math.ceil
+import kotlin.math.sqrt
+
 fun main() {
     fun parseTime(line: String): List<Int> {
         val timeList = line.split(":")[1]
@@ -8,7 +11,6 @@ fun main() {
             .map { it.toInt() }
         return timeList
     }
-
     fun parseDistance(line: String): List<Int> {
         val distanceList = line.split(":")[1]
             .trim()
@@ -17,6 +19,16 @@ fun main() {
             .filterNot { it == "" }
             .map { it.toInt() }
         return distanceList
+    }
+
+    fun parsePartTwo(line: String): String {
+        val result = line.split(":")[1]
+            .trim()
+            .split(" ")
+            .map { it.trim() }
+            .filterNot { it == "" }
+            .reduce { acc, s -> acc + s }
+        return result
     }
 
     fun part1(input: List<String>): Int {
@@ -45,23 +57,33 @@ fun main() {
         return ret
     }
 
-    fun part2(input: List<String>): Int {
-        var ret = 0
-        for (line in input) {
-            println(line)
-        }
-        println(ret)
+    fun quadraticEquation(t: Long, d: Long): Long {
+        val delta = (t * t) - (4 * d)
+        val r = (t - sqrt(delta.toDouble())) / 2
+        val ceiledR = ceil(r.toDouble())
+        return ceiledR.toLong()
+    }
+
+    fun part2(input: List<String>): Long {
+        var ret: Long = 0
+        val time = parsePartTwo(input[0]).toLong()
+        val distance = parsePartTwo(input[1]).toLong()
+
+        time.println()
+        distance.println()
+
+        val r = quadraticEquation(time, distance)
+        println("R is $r")
+        ret = time - r*2 + 1
         return ret
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day06_test")
 //    part1(testInput)
-    check(part1(testInput) == 288)
-//    part2(testInput)
-//    check(part2(testInput) == 281)
+    part2(testInput)
 
     val input = readInput("Day06")
-    part1(input).println()
-//    part2(input).println()
+//    part1(input).println()
+    part2(input).println()
 }
