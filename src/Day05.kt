@@ -1,14 +1,35 @@
+import kotlin.math.max
+import kotlin.math.min
+
 /**
  * https://adventofcode.com/2023/day/5
  * */
 
 data class Day05MapItem(val desStart: Long, val srcStart: Long, val len: Long)
 data class Day05MapList(val source: String, val destination: String, val mapList: List<Day05MapItem>)
+data class Day05Range(val rangeStart: Long, val rangeEnd: Long)
 
 fun main() {
     fun parseSeeds(line: String): MutableList<Long> {
         val seeds = line.split(": ")[1].trim().split(" ").filterNot { s -> s == "" }.map { s -> s.toLong() }
         return seeds.toMutableList()
+    }
+
+    fun parseRangeSeeds(line: String): MutableList<Day05Range> {
+        val seeds = line.split(": ")[1].trim().split(" ").filterNot { s -> s == "" }.map { s -> s.toLong() }
+        val rangeList = mutableListOf<Day05Range>()
+        var startIndex = 0
+        while (startIndex < seeds.lastIndex) {
+            val newRange= Day05Range(seeds[startIndex], seeds[startIndex] + seeds[startIndex+1] - 1)
+            rangeList.add(newRange)
+//            retList.add(seeds[startIndex])
+//            retList.add(seeds[startIndex] + seeds[startIndex+1])
+            startIndex += 2
+        }
+//        rangeList.println()
+//        retList.println()
+//        retList.sorted().println()
+        return rangeList
     }
 
     fun mapSrcToDes(src: MutableList<Long>, mapList: Day05MapList): MutableList<Long> {
@@ -122,24 +143,96 @@ fun main() {
         return ret
     }
 
-    fun part2(input: List<String>): Int {
-        var ret = 0
-        for ((lineNumber, line) in input.withIndex()) {
-            line.println()
+    fun part2(input: List<String>): Long {
+        var ret: Long = 0
+        input.println()
+
+        var seeds = parseRangeSeeds(input[0])
+        println("First seeds is $seeds")
+
+        // Get Blocks
+        val inputDropped = input.drop(2)
+        val blocks = mutableListOf<MutableList<Day05MapItem>>()
+        val lastBlock = mutableListOf<Day05MapItem>()
+
+        for ((lineNumber, line) in inputDropped.withIndex()) {
+            if (line == "") {
+                // https://stackoverflow.com/questions/46846025/how-to-clone-or-copy-a-list-in-kotlin
+                blocks.add(lastBlock.toMutableList())
+                continue
+            }
+            if (line.last() == ':') {
+                lastBlock.clear()
+                continue
+            }
+            val splitLine = line.split(" ").map { x -> x.toLong() }
+            val newMapItem = Day05MapItem(splitLine[0], splitLine[1], splitLine[2])
+            lastBlock.add(newMapItem)
+
+            if (lineNumber == inputDropped.lastIndex) {
+                blocks.add(lastBlock)
+            }
+        }
+        blocks.println()
+
+        // Processing maps
+        var srcList = seeds.toMutableList()
+        for (block in blocks) {
+            val newList = mutableListOf<Day05Range>()
+            println("***************************************")
+            while (srcList.size > 0) {
+                val src = srcList.removeFirst()
+                var isMapped = false
+                println("Processing src is $src")
+
+                for (mapItem in block) {
+                    println("Processing mapItem is $mapItem")
+                    val overlayStart = max(src.rangeStart, mapItem.srcStart)
+                    val overlayEnd = min(src.rangeEnd, mapItem.srcStart + mapItem.len - 1)
+
+                    if (overlayStart < overlayEnd) {
+                        isMapped = true
+                        println("$src is mapped by $mapItem")
+
+                        val newSrcRangeStart = mapItem.desStart - mapItem.srcStart + overlayStart
+                        val newSrcRangeEnd = mapItem.desStart - mapItem.srcStart + overlayEnd
+                        val newSrcRangge = Day05Range(newSrcRangeStart, newSrcRangeEnd)
+                        newList.add(newSrcRangge)
+
+                        if (overlayStart > src.rangeStart) {
+                            srcList.add(Day05Range(src.rangeStart, overlayStart - 1))
+                        }
+                        if (overlayEnd < src.rangeEnd) {
+                            srcList.add(Day05Range(overlayEnd + 1, src.rangeEnd))
+                        }
+
+                        break
+                    }
+                }
+
+                if (!isMapped) {
+                    println("$src not mapped in the block $block")
+                    newList.add(src)
+                }
+            }
+            srcList = newList
+            println("Next Src List is: $srcList")
         }
 
-        ret.println()
-        return input.size
+        val lowest = srcList.minBy { it.rangeStart }
+        ret = lowest.rangeStart
+        println("Result is: $ret")
+        return ret
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day05_test")
 //    part1(testInput)
-    check(part1(testInput) == 35.toLong())
+//    check(part1(testInput) == 35.toLong())
 //    part2(testInput)
-//    check(part2(testInput) == 1)
+    check(part2(testInput) == 46.toLong())
 
     val input = readInput("Day05")
-    part1(input).println()
-//    part2(input).println()
+//    part1(input).println()
+    part2(input).println()
 }
